@@ -1,34 +1,43 @@
 FROM centos:7
 
-MAINTAINER Clement Laforet <sheepkiller@cultdeadsheep.org>
-
 RUN yum update -y && \
     yum install -y java-1.8.0-openjdk-headless && \
     yum clean all
 
 ENV JAVA_HOME=/usr/java/default/ \
     ZK_HOSTS=localhost:2181 \
-    KM_VERSION=1.3.1.8 \
-    KM_REVISION=97329cc8bf462723232ee73dc6702c064b5908eb \
-    KM_CONFIGFILE="conf/application.conf"
+    CMAK_VERSION=2.0.0.2 \
+    CMAK_CONFIGFILE="conf/application.conf"
+    #CMAK_USERNAME=admin \
+    #CMAK_PASSWORD=password \
 
-ADD start-kafka-manager.sh /kafka-manager-${KM_VERSION}/start-kafka-manager.sh
+RUN yum install -y java-1.8.0-openjdk-devel git wget unzip which vim && \
+    echo 1
 
-RUN yum install -y java-1.8.0-openjdk-devel git wget unzip which && \
-    mkdir -p /tmp && \
-    cd /tmp && \
-    git clone https://github.com/yahoo/kafka-manager && \
-    cd /tmp/kafka-manager && \
-    git checkout ${KM_REVISION} && \
-    echo 'scalacOptions ++= Seq("-Xmax-classfile-name", "200")' >> build.sbt && \
-    ./sbt clean dist && \
-    unzip  -d / ./target/universal/kafka-manager-${KM_VERSION}.zip && \
-    rm -fr /tmp/* /root/.sbt /root/.ivy2 && \
-    chmod +x /kafka-manager-${KM_VERSION}/start-kafka-manager.sh && \
-    yum autoremove -y java-1.8.0-openjdk-devel git wget unzip which && \
-    yum clean all
+RUN mkdir -p /tmp && cd /tmp && \
+    echo 2 && \
+    wget https://github.com/yahoo/CMAK/archive/${CMAK_VERSION}.tar.gz && \
+    echo 3 && \
+    tar -zxvf ${CMAK_VERSION}.tar.gz && \
+    echo 4
 
-WORKDIR /kafka-manager-${KM_VERSION}
+RUN cd /tmp/CMAK-${CMAK_VERSION} && ./sbt clean dist
+
+RUN unzip -o -d / /tmp/CMAK-${CMAK_VERSION}/target/universal/kafka-manager-${CMAK_VERSION}.zip
+
+#temp for debugging
+#CMD ["tail", "-f", "/dev/null"]
+
+ADD start-cmak.sh /kafka-manager-${CMAK_VERSION}/start-cmak.sh
+
+##
+CMD ["tail", "-f", "/dev/null"]
+##
+
+RUN chmod +x /kafka-manager-${CMAK_VERSION}/start-cmak.sh
+
+WORKDIR /kafka-manager-${CMAK_VERSION}
 
 EXPOSE 9000
-ENTRYPOINT ["./start-kafka-manager.sh"]
+
+ENTRYPOINT ["./start-cmak.sh"]
