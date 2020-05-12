@@ -30,10 +30,6 @@ RUN unzip -o -d / /tmp/CMAK-${CMAK_VERSION}/target/universal/kafka-manager-${CMA
 
 ADD start-cmak.sh /kafka-manager-${CMAK_VERSION}/start-cmak.sh
 
-##
-CMD ["tail", "-f", "/dev/null"]
-##
-
 RUN chmod +x /kafka-manager-${CMAK_VERSION}/start-cmak.sh
 
 WORKDIR /kafka-manager-${CMAK_VERSION}
