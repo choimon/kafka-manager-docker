@@ -17,5 +17,5 @@ docker run -it --rm  -p 9000:9000 -e ZK_HOSTS="your-zk.domain:2181" sanjosebadge
 
 
 
-###Note
+### Note
 I forked from sheepkiller/kafka-manager-docker repo and updated files to recent versions. 
